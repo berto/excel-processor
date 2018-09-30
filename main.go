@@ -11,7 +11,7 @@ func main() {
 
 	err := godotenv.Load()
 	if err != nil {
-		e.Logger.Fatal(err)
+		e.Logger.Error(err)
 	}
 
 	port := os.Getenv("PORT")
