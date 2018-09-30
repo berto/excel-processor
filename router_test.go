@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func TestQueueRoutes(t *testing.T) {
+func TestRoutes(t *testing.T) {
 	r := createRouter()
 
 	tt := []struct {
