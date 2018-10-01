@@ -1,4 +1,4 @@
-package main
+package db
 
 import (
 	"os"
@@ -22,7 +22,7 @@ func TestShip(t *testing.T) {
 		Year: 1900,
 	}
 
-	err = insertShip(ship)
+	err = AddShip(ship)
 	if err != nil {
 		t.Errorf("Failed to insert ship with error %d.", err)
 	}

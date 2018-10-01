@@ -1,4 +1,4 @@
-package main
+package db
 
 import (
 	"bufio"
@@ -7,6 +7,21 @@ import (
 	"os"
 	"strconv"
 )
+
+const csvPath = "./db/sample-data/ship.csv"
+const csvPathTwo = "./db/sample-data/ship[1].csv"
+
+func SeedShips() error {
+	err := seedShips(csvPath)
+	if err != nil {
+		return err
+	}
+	err = seedShips(csvPathTwo)
+	if err != nil {
+		return err
+	}
+	return nil
+}
 
 func seedShips(csvPath string) error {
 	reader, err := readCSV(csvPath)
@@ -17,7 +32,7 @@ func seedShips(csvPath string) error {
 	for {
 		select {
 		case ship := <-ships:
-			insertShip(ship)
+			AddShip(ship)
 		case <-quit:
 			return nil
 		}

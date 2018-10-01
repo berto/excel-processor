@@ -11,10 +11,10 @@
 <body>
     <main class="container">
         <h1>Seaspan Ship</h1>
-        <form action="/ship" method="POST">
+        <form action="/ship" method="POST" enctype="multipart/form-data">
             <fieldset>
                 <label for="excel">Upload Excel File</label>
-                <input id="excel" type="file" required>
+                <input id="excel" type="file" name="ship" required>
                 <input class="button button-outline" type="submit" value="Upload" >
             </fieldset>
         </form>

@@ -1,6 +1,4 @@
-package main
-
-import "github.com/jmoiron/sqlx"
+package db
 
 type Ship struct {
 	ID   int    `db:"id"`
@@ -9,13 +7,8 @@ type Ship struct {
 	Year int    `db:"year"`
 }
 
-func insertShip(ship Ship) error {
-	dbURL, err := generateDatabaseURL()
-	if err != nil {
-		return err
-	}
-
-	db, err := sqlx.Connect("mysql", dbURL)
+func AddShip(ship Ship) error {
+	db, err := getDB()
 	if err != nil {
 		return err
 	}
@@ -30,4 +23,19 @@ func insertShip(ship Ship) error {
 		return err
 	}
 	return nil
+}
+
+func FindShipByName(name string) (ship Ship, err error) {
+	db, err := getDB()
+	if err != nil {
+		return
+	}
+	defer db.Close()
+
+	err = db.Get(&ship, getShipByNameQuery, name)
+	if err != nil {
+		return
+	}
+
+	return
 }

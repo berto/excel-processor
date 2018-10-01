@@ -1,18 +1,29 @@
-package main
+package db
 
-import (
-	_ "github.com/go-sql-driver/mysql"
-
-	"github.com/jmoiron/sqlx"
-)
+import _ "github.com/go-sql-driver/mysql"
 
 func RunMigrations() error {
-	dbURL, err := generateDatabaseURL()
+	err := runShipMigration()
 	if err != nil {
 		return err
 	}
+	err = runBudgetMigration()
+	if err != nil {
+		return err
+	}
+	err = runOpexMigration()
+	if err != nil {
+		return err
+	}
+	err = runMonthReportMigration()
+	if err != nil {
+		return err
+	}
+	return nil
+}
 
-	db, err := sqlx.Connect("mysql", dbURL)
+func runShipMigration() error {
+	db, err := getDB()
 	if err != nil {
 		return err
 	}
@@ -23,6 +34,66 @@ func RunMigrations() error {
 	tx.MustExec(createShipTable)
 
 	tx.MustExec(`TRUNCATE TABLE ship;`)
+
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func runBudgetMigration() error {
+	db, err := getDB()
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	tx := db.MustBegin()
+
+	tx.MustExec(createBudgetTable)
+
+	tx.MustExec(`TRUNCATE TABLE budget;`)
+
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func runOpexMigration() error {
+	db, err := getDB()
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	tx := db.MustBegin()
+
+	tx.MustExec(createOpexTable)
+
+	tx.MustExec(`TRUNCATE TABLE opex;`)
+
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func runMonthReportMigration() error {
+	db, err := getDB()
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	tx := db.MustBegin()
+
+	tx.MustExec(createMonthReportTable)
+
+	tx.MustExec(`TRUNCATE TABLE month_report;`)
 
 	err = tx.Commit()
 	if err != nil {

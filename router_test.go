@@ -8,16 +8,36 @@ import (
 	"testing"
 )
 
+const testBody = `
+This is a multi-part message.  This line is ignored.
+--test
+Header1: value1
+HEADER2: value2
+file: baz
+
+My value
+The end.
+--test
+file: bigsection
+
+never read data
+--test--
+ok
+`
+
 func TestRoutes(t *testing.T) {
 	r := createRouter()
 
 	tt := []struct {
-		name    string
-		method  string
-		uri     string
-		payload []byte
+		name        string
+		method      string
+		uri         string
+		contentType string
+		status      int
+		payload     []byte
 	}{
-		{"get index page", "GET", "/", nil},
+		{"get index page", "GET", "/", "text/html; charset=utf-8", 200, nil},
+		{"post excel form", "POST", "/ship", "multipart/form-data; boundary=test", 500, []byte(testBody)},
 	}
 
 	for _, tc := range tt {
@@ -27,6 +47,8 @@ func TestRoutes(t *testing.T) {
 				payload = bytes.NewBuffer(tc.payload)
 			}
 			req, err := http.NewRequest(tc.method, tc.uri, payload)
+			req.Header.Set("Content-Type", tc.contentType)
+
 			if err != nil {
 				t.Errorf("Get failed with error %d.", err)
 			}
@@ -34,13 +56,10 @@ func TestRoutes(t *testing.T) {
 			resp := httptest.NewRecorder()
 			r.ServeHTTP(resp, req)
 
-			if resp.Code != 200 {
-				t.Errorf("/ failed with error code %d.", resp.Code)
+			if resp.Code != tc.status {
+				t.Errorf("/ failed with incorrect status code: %v", resp.Code)
 			}
 
-			if resp.Header().Get("Content-Type") != "text/html; charset=utf-8" {
-				t.Errorf("/ failed with incorrect headers: %v", resp.Header().Get("Content-Type"))
-			}
 		})
 	}
 }
