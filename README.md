@@ -17,6 +17,14 @@ Containerized go web server that processes an excel file(s) into a database.
 
 ![erd](./erd.png)
 
+## Usage
+
+- GET '/': displays client with upload form for excel data (look inside `db/sample-data` for an example)
+- GET '/migrate': truncates/migrates db. Run before seeding or uploading
+- GET '/seed': seeds db with ship data inside `db/sample-data`
+- GET '/budget/:code': display uploaded budget data from the db
+- POST '/ship': route to parse excel data from form upload
+
 ## Deployment
 
 ### Heroku
@@ -24,6 +32,12 @@ Containerized go web server that processes an excel file(s) into a database.
 [Heroku](https://excel-processor.herokuapp.com/)
 
 ### Docker
+
+**Clone and navigate to repo**
+```
+git clone github.com/berto/excel-processor
+cd $GOPATH/src/github.com/berto/excel-processor
+```
 
 **Build Docker image**
 ```
@@ -33,4 +47,19 @@ docker build -t excel-processor .
 **Start Docker container**
 ```
 docker run -i -t -p 3000:3000 -v "$PWD":/go/src/github.com/berto/excel-processor excel-processor
+```
+
+**Copy ENV File and edit**
+```
+cp .env.example .env
+```
+
+**Build Application**
+```
+go build
+```
+
+**Run Application**
+```
+./excel-processor
 ```
