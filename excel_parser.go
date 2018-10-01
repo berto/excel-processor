@@ -27,27 +27,28 @@ var categories = map[string]string{
 
 var monthNames = []string{"January", "February", "March", "April", "May", "June", "July", "August", "October", "September", "November", "December"}
 
-func parseExcelData(xlFile *xlsx.File, name string) error {
+func parseExcelData(xlFile *xlsx.File, name string) (code string, err error) {
 	shipName, code := parseName(name)
 	ship, err := db.FindShipByName(shipName)
 	if err != nil {
-		return err
+		return
 	}
 	budget := db.Budget{Code: code}
 	budgetID, err := db.AddBudget(budget)
 	if err != nil {
-		return err
+		return
 	}
 	for _, sheet := range xlFile.Sheets {
-		skip, err := parseSheetData(sheet, ship.ID, budgetID)
-		if err != nil {
-			return err
+		skip, loopErr := parseSheetData(sheet, ship.ID, budgetID)
+		if loopErr != nil {
+			err = loopErr
+			return
 		}
 		if skip {
 			break
 		}
 	}
-	return nil
+	return
 }
 
 func parseSheetData(sheet *xlsx.Sheet, shipID int, budgetID int) (bool, error) {

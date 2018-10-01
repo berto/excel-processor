@@ -10,7 +10,11 @@ const insertOpexQuery = `INSERT INTO opex(
 		ship_id, budget_id, year, is_actual)
 		VALUES (:ship_id, :budget_id, :year, :is_actual)`
 
+const getOpexByBudgetIDAndYearQuery = `SELECT * FROM opex WHERE budget_id=? AND year=?`
+
 const getOpexByBudgetIDQuery = `SELECT * FROM opex WHERE budget_id=?`
+
+const getMonthReportsByOpexIDQuery = `SELECT * FROM month_report WHERE opex_id=?`
 
 const insertMonthReportQuery = `INSERT INTO month_report(
 			opex_id, 

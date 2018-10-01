@@ -22,6 +22,7 @@ func applyRoutes(e *echo.Echo) {
 	e.File("/", "client/index.html")
 	e.GET("/migrate", migrateDB)
 	e.GET("/seed", seedShips)
+	e.GET("/budget/:code", getBudget)
 	e.POST("/ship", parseShipData)
 }
 
@@ -47,6 +48,12 @@ func seedShips(c echo.Context) error {
 	return c.String(http.StatusOK, message)
 }
 
+func getBudget(c echo.Context) error {
+	code := c.Param("code")
+	budgetDataResponse := db.GetBudgetDataFromCode(code)
+	return c.JSON(http.StatusOK, budgetDataResponse)
+}
+
 func parseShipData(c echo.Context) error {
 	file, err := c.FormFile("ship")
 	if err != nil {
@@ -68,9 +75,9 @@ func parseShipData(c echo.Context) error {
 		return err
 	}
 
-	err = parseExcelData(xlFile, file.Filename)
+	code, err := parseExcelData(xlFile, file.Filename)
 	if err != nil {
 		return err
 	}
-	return c.Redirect(http.StatusMovedPermanently, "/?status=success")
+	return c.Redirect(http.StatusMovedPermanently, "/budget/"+code)
 }

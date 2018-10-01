@@ -32,6 +32,72 @@ type MonthReport struct {
 	Total                  float32 `db:"total" json:"total,string"`
 }
 
+type BudgetDataResponse struct {
+	Error string `json:"error"`
+	DataMessage
+}
+
+type DataMessage struct {
+	Code     string     `json:"code"`
+	OpexData []OpexData `json:"opexData"`
+}
+
+type OpexData struct {
+	ShipName     string        `json:"shipName"`
+	Year         int           `json:"year"`
+	IsActual     bool          `json:"isActual"`
+	MonthReports []MonthReport `json:"monthReports"`
+}
+
+func GetBudgetDataFromCode(code string) (br BudgetDataResponse) {
+	db, err := getDB()
+	if err != nil {
+		br.Error = err.Error()
+		return
+	}
+	defer db.Close()
+
+	budget := Budget{}
+	err = db.Get(&budget, getBudgetByCodeQuery, code)
+	if err != nil {
+		br.Error = err.Error()
+		return
+	}
+	dm := DataMessage{}
+	dm.Code = code
+
+	opexs, err := GetOpexsByBudgetID(budget.ID)
+	if err != nil {
+		br.Error = err.Error()
+		return
+	}
+
+	dm.OpexData = make([]OpexData, len(opexs))
+
+	for i, opex := range opexs {
+		ship, err := FindShipByID(opex.ShipID)
+		if err != nil {
+			br.Error = err.Error()
+			return
+		}
+		monthReports, err := GetMonthReportsByOpexID(opex.ID)
+		if err != nil {
+			br.Error = err.Error()
+			return
+		}
+		od := OpexData{
+			ShipName:     ship.Name,
+			Year:         opex.Year,
+			IsActual:     opex.IsActual,
+			MonthReports: monthReports,
+		}
+		dm.OpexData[i] = od
+	}
+
+	br.DataMessage = dm
+	return
+}
+
 func AddBudget(budget Budget) (int, error) {
 	db, err := getDB()
 	if err != nil {
@@ -78,8 +144,9 @@ func AddOpex(opex Opex) (int, error) {
 		return 0, err
 	}
 
-	err = db.Get(&opex, getOpexByBudgetIDQuery, opex.BudgetID)
+	err = db.Get(&opex, getOpexByBudgetIDAndYearQuery, opex.BudgetID, opex.Year)
 	if err != nil {
+		println(err.Error())
 		return 0, err
 	}
 
@@ -106,4 +173,32 @@ func AddMonthReport(monthReport MonthReport) error {
 	}
 
 	return nil
+}
+
+func GetOpexsByBudgetID(budgetID int) (opexs []Opex, err error) {
+	db, err := getDB()
+	if err != nil {
+		return
+	}
+	defer db.Close()
+
+	err = db.Select(&opexs, getOpexByBudgetIDQuery, budgetID)
+	if err != nil {
+		return
+	}
+	return
+}
+
+func GetMonthReportsByOpexID(opexID int) (monthReports []MonthReport, err error) {
+	db, err := getDB()
+	if err != nil {
+		return
+	}
+	defer db.Close()
+
+	err = db.Select(&monthReports, getMonthReportsByOpexIDQuery, opexID)
+	if err != nil {
+		return
+	}
+	return
 }

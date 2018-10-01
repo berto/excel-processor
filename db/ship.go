@@ -39,3 +39,18 @@ func FindShipByName(name string) (ship Ship, err error) {
 
 	return
 }
+
+func FindShipByID(id int) (ship Ship, err error) {
+	db, err := getDB()
+	if err != nil {
+		return
+	}
+	defer db.Close()
+
+	err = db.Get(&ship, getShipByIDQuery, id)
+	if err != nil {
+		return
+	}
+
+	return
+}
