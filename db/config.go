@@ -1,6 +1,7 @@
 package db
 
 import (
+	"log"
 	"os"
 
 	"github.com/jmoiron/sqlx"
@@ -10,7 +11,7 @@ import (
 func generateDatabaseURL() (string, error) {
 	err := godotenv.Load()
 	if err != nil {
-		return "", err
+		log.Println(err.Error())
 	}
 	DB_HOST := os.Getenv("DB_HOST")
 	DB_USERNAME := os.Getenv("DB_USERNAME")
