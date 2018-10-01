@@ -33,6 +33,7 @@ func runShipMigration() error {
 
 	tx.MustExec(createShipTable)
 
+	tx.MustExec("SET FOREIGN_KEY_CHECKS = 0;")
 	tx.MustExec(`TRUNCATE TABLE ship;`)
 
 	err = tx.Commit()
@@ -53,6 +54,7 @@ func runBudgetMigration() error {
 
 	tx.MustExec(createBudgetTable)
 
+	tx.MustExec("SET FOREIGN_KEY_CHECKS = 0;")
 	tx.MustExec(`TRUNCATE TABLE budget;`)
 
 	err = tx.Commit()
@@ -73,6 +75,7 @@ func runOpexMigration() error {
 
 	tx.MustExec(createOpexTable)
 
+	tx.MustExec("SET FOREIGN_KEY_CHECKS = 0;")
 	tx.MustExec(`TRUNCATE TABLE opex;`)
 
 	err = tx.Commit()
@@ -93,6 +96,7 @@ func runMonthReportMigration() error {
 
 	tx.MustExec(createMonthReportTable)
 
+	tx.MustExec("SET FOREIGN_KEY_CHECKS = 0;")
 	tx.MustExec(`TRUNCATE TABLE month_report;`)
 
 	err = tx.Commit()
